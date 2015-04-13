@@ -62,26 +62,26 @@ class ViewController: UIViewController {
         }
         
         switch operation {
-        case "+": performOperation { $0 + $1 }
-        case "−": performOperation { $1 - $0 }
-        case "×": performOperation { $0 * $1 }
-        case "÷": performOperation { $1 / $0 }
-        //case "√": performOperation { sqrt($0) }
+        case "+": performBinaryOperation { $0 + $1 }
+        case "−": performBinaryOperation { $1 - $0 }
+        case "×": performBinaryOperation { $0 * $1 }
+        case "÷": performBinaryOperation { $1 / $0 }
+        case "√": performUniaryOperation { sqrt($0) }
         default: break
         }
     }
     
-    func performOperation(operation: (Double, Double) -> Double) {
+    func performBinaryOperation(operation: (Double, Double) -> Double) {
         if operandStack.count >= 2 {
             displayValue = operation(operandStack.removeLast(),operandStack.removeLast())
             enter()
         }
     }
     
-//    func performOperation(operation: Double -> Double) {
-//        if operandStack.count >= 1 {
-//            displayValue = operation(operandStack.removeLast())
-//            enter()
-//        }
-//    }
+    func performUniaryOperation(operation: Double -> Double ) {
+        if operandStack.count >= 1 {
+            displayValue = operation(operandStack.removeLast())
+            enter()
+        }
+    }
 }
