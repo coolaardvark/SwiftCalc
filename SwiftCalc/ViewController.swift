@@ -62,12 +62,15 @@ class ViewController: UIViewController {
         }
         
         switch operation {
-        case "+": performBinaryOperation { $0 + $1 }
-        case "−": performBinaryOperation { $1 - $0 }
-        case "×": performBinaryOperation { $0 * $1 }
-        case "÷": performBinaryOperation { $1 / $0 }
-        case "√": performUniaryOperation { sqrt($0) }
-        default: break
+            case "+": performBinaryOperation { $0 + $1 }
+            case "−": performBinaryOperation { $1 - $0 }
+            case "×": performBinaryOperation { $0 * $1 }
+            case "÷": performBinaryOperation { $1 / $0 }
+            case "√": performUniaryOperation { sqrt($0) }
+            case "cos": performUniaryOperation { cos($0) }
+            case "sin": performUniaryOperation { sin($0) }
+            case "pi": pushToOperandStack(M_PI)
+            default: break
         }
     }
     
@@ -93,5 +96,10 @@ class ViewController: UIViewController {
             displayValue = operation(operandStack.removeLast())
             enter()
         }
+    }
+    
+    func pushToOperandStack(value: Double) {
+        display.text = "\(value)"
+        enter()
     }
 }
