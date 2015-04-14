@@ -71,6 +71,16 @@ class ViewController: UIViewController {
         }
     }
     
+    @IBAction func decimalPoint() {
+        // Figure out if we have a decimal point already
+        // Not going to use a flag that I set here, as the
+        // result of an operation can also add a decimal place
+        if display.text!.rangeOfString(".") == nil {
+            display.text = display.text! + "."
+            userIsInTheMiddleOfTypingANumber = true
+        }
+    }
+    
     func performBinaryOperation(operation: (Double, Double) -> Double) {
         if operandStack.count >= 2 {
             displayValue = operation(operandStack.removeLast(),operandStack.removeLast())
