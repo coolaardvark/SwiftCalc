@@ -25,8 +25,9 @@ class ViewController: UIViewController {
     @IBOutlet weak var historyDisplay: UILabel!
     
     var userIsInTheMiddleOfTypingANumber = false
-    
     var operandStack = Array<Double>()
+    
+    var debug = true
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -55,7 +56,9 @@ class ViewController: UIViewController {
         updateHistoryDisplay("\(displayValue)")
         userIsInTheMiddleOfTypingANumber = false
         
-        println("Operand stack = \(operandStack)")
+        if debug {
+            println("Operand stack = \(operandStack)")
+        }
     }
     
     @IBAction func operate(sender: UIButton) {
@@ -65,6 +68,8 @@ class ViewController: UIViewController {
             enter()
         }
         
+        // The characters below are unicode and where placed using the
+        // the character selector, the - and + are *not* from the keyboard!
         switch operation {
             case "+": performBinaryOperation { $0 + $1 }
             case "−": performBinaryOperation { $1 - $0 }
