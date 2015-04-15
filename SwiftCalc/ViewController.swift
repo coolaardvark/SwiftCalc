@@ -22,6 +22,8 @@ class ViewController: UIViewController {
         }
     }
     
+    @IBOutlet weak var historyDisplay: UILabel!
+    
     var userIsInTheMiddleOfTypingANumber = false
     
     var operandStack = Array<Double>()
@@ -50,7 +52,9 @@ class ViewController: UIViewController {
     
     @IBAction func enter() {
         operandStack.append(displayValue)
+        updateHistoryDisplay("\(displayValue)")
         userIsInTheMiddleOfTypingANumber = false
+        
         println("Operand stack = \(operandStack)")
     }
     
@@ -69,9 +73,11 @@ class ViewController: UIViewController {
             case "√": performUniaryOperation { sqrt($0) }
             case "cos": performUniaryOperation { cos($0) }
             case "sin": performUniaryOperation { sin($0) }
-            case "pi": pushToOperandStack(M_PI)
+            case "∏": pushToOperandStack(M_PI)
             default: break
         }
+        
+        updateHistoryDisplay(operation)
     }
     
     @IBAction func decimalPoint() {
@@ -82,6 +88,8 @@ class ViewController: UIViewController {
             display.text = display.text! + "."
             userIsInTheMiddleOfTypingANumber = true
         }
+        
+        updateHistoryDisplay(".")
     }
     
     func performBinaryOperation(operation: (Double, Double) -> Double) {
@@ -101,5 +109,9 @@ class ViewController: UIViewController {
     func pushToOperandStack(value: Double) {
         display.text = "\(value)"
         enter()
+    }
+    
+    func updateHistoryDisplay(item: String) {
+        historyDisplay.text = historyDisplay.text! + " \(item)"
     }
 }
