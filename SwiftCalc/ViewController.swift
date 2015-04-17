@@ -25,19 +25,8 @@ class ViewController: UIViewController {
     @IBOutlet weak var historyDisplay: UILabel!
     
     var userIsInTheMiddleOfTypingANumber = false
-    var operandStack = Array<Double>()
     
-    var debug = true
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
-    }
-    
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
-    }
+    var brain = CalculatorBrain()
     
     @IBAction func appendDigit(sender: UIButton) {
         let digit = sender.currentTitle!
@@ -52,37 +41,43 @@ class ViewController: UIViewController {
     }
     
     @IBAction func enter() {
-        operandStack.append(displayValue)
+        ////TODO
+        // move to model maybe?
         updateHistoryDisplay(display.text!)
-        userIsInTheMiddleOfTypingANumber = false
         
-        if debug {
-            println("Operand stack = \(operandStack)")
+        if let result = brain.pushOperand(displayValue) {
+            displayValue = result
         }
+        else {
+            ////TODO
+            // This is an error condtion, we need to make displayValue an
+            // optional so I can handle this error correctly
+            displayValue = 0
+        }
+        
+        userIsInTheMiddleOfTypingANumber = false
     }
     
     @IBAction func operate(sender: UIButton) {
-        let operation = sender.currentTitle!
-        
         if userIsInTheMiddleOfTypingANumber {
             enter()
         }
-        
-        // The characters below are unicode and where placed using the
-        // the character selector, the - and + are *not* from the keyboard!
-        switch operation {
-            case "+": performBinaryOperation { $0 + $1 }
-            case "−": performBinaryOperation { $1 - $0 }
-            case "×": performBinaryOperation { $0 * $1 }
-            case "÷": performBinaryOperation { $1 / $0 }
-            case "√": performUniaryOperation { sqrt($0) }
-            case "cos": performUniaryOperation { cos($0) }
-            case "sin": performUniaryOperation { sin($0) }
-            case "∏": pushToOperandStack(M_PI)
-            default: break
+        if let operation = sender.currentTitle {
+            if let result = brain.perforOperation(operation) {
+                displayValue = result
+            }
+            else {
+                ////TODO
+                // This is an error condtion, we need to make displayValue an
+                // optional so I can handle this error correctly
+                displayValue = 0
+            }
+
+            
+            ////TODO
+            // move to model maybe
+            updateHistoryDisplay(operation)
         }
-        
-        updateHistoryDisplay(operation)
     }
     
     @IBAction func decimalPoint() {
@@ -110,25 +105,13 @@ class ViewController: UIViewController {
         }
     }
     
-    func performBinaryOperation(operation: (Double, Double) -> Double) {
-        if operandStack.count >= 2 {
-            displayValue = operation(operandStack.removeLast(),operandStack.removeLast())
-            enter()
-        }
-    }
-    
-    func performUniaryOperation(operation: Double -> Double ) {
-        if operandStack.count >= 1 {
-            displayValue = operation(operandStack.removeLast())
-            enter()
-        }
-    }
-    
     func pushToOperandStack(value: Double) {
         display.text = "\(value)"
         enter()
     }
     
+    ////TODO
+    // These three functions need to be moved to and updated to work with the model
     func updateHistoryDisplay(item: String) {
         historyDisplay.text = historyDisplay.text! + " \(item)"
     }
@@ -137,7 +120,7 @@ class ViewController: UIViewController {
         // Reset to launch state
         display.text = "0"
         historyDisplay.text = "History:"
-        operandStack.removeAll(keepCapacity: true)
+        //operandStack.removeAll(keepCapacity: true)
         userIsInTheMiddleOfTypingANumber = false
     }
     
@@ -145,6 +128,7 @@ class ViewController: UIViewController {
         // Doing a lot of work with display.text so cache it locally
         // It can be a constant since the changes are all made to
         // display.text, not the local copy.
+        /*
         let localDisplayText = display.text!
         
         // Only allow deletes if, I've entered this number (it's not
@@ -161,6 +145,6 @@ class ViewController: UIViewController {
                 // Delete last digit
                 display.text = localDisplayText.substringToIndex(localDisplayText.endIndex.predecessor())
             }
-        }
+        }*/
     }
 }
