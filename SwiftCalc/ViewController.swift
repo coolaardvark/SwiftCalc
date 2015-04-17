@@ -53,7 +53,7 @@ class ViewController: UIViewController {
     
     @IBAction func enter() {
         operandStack.append(displayValue)
-        updateHistoryDisplay("\(displayValue)")
+        updateHistoryDisplay(display.text!)
         userIsInTheMiddleOfTypingANumber = false
         
         if debug {
@@ -97,6 +97,19 @@ class ViewController: UIViewController {
         updateHistoryDisplay(".")
     }
     
+    @IBAction func performCalculatorAction(sender: UIButton) {
+        // Peform actions which affect the state of the calculator it's self
+        // These are nothing to do with actual calculations, e.g clearing displa
+        // reseting etc.
+        let action = sender.currentTitle!
+        
+        switch action {
+            case "C": clearCalc()
+            case "bksp": clearLastDigit()
+            default: break
+        }
+    }
+    
     func performBinaryOperation(operation: (Double, Double) -> Double) {
         if operandStack.count >= 2 {
             displayValue = operation(operandStack.removeLast(),operandStack.removeLast())
@@ -118,5 +131,36 @@ class ViewController: UIViewController {
     
     func updateHistoryDisplay(item: String) {
         historyDisplay.text = historyDisplay.text! + " \(item)"
+    }
+    
+    func clearCalc() {
+        // Reset to launch state
+        display.text = "0"
+        historyDisplay.text = "History:"
+        operandStack.removeAll(keepCapacity: true)
+        userIsInTheMiddleOfTypingANumber = false
+    }
+    
+    func clearLastDigit() {
+        // Doing a lot of work with display.text so cache it locally
+        // It can be a constant since the changes are all made to
+        // display.text, not the local copy.
+        let localDisplayText = display.text!
+        
+        // Only allow deletes if, I've entered this number (it's not
+        // the result of calcuation)
+        if userIsInTheMiddleOfTypingANumber {
+            // If this is this the last digit, make it 0 instead of deleting it
+            if localDisplayText.lengthOfBytesUsingEncoding(NSUTF8StringEncoding) == 1 {
+                display.text = "0"
+                // To avoid problems with leading 0's we need to come out of
+                // entry mode now
+                userIsInTheMiddleOfTypingANumber = false
+            }
+            else {
+                // Delete last digit
+                display.text = localDisplayText.substringToIndex(localDisplayText.endIndex.predecessor())
+            }
+        }
     }
 }
