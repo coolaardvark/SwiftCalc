@@ -11,6 +11,7 @@ import UIKit
 class ViewController: UIViewController {
 
     @IBOutlet weak var display: UILabel!
+    @IBOutlet weak var historyDisplay: UILabel!
     
     var displayValue: Double {
         get {
@@ -22,10 +23,9 @@ class ViewController: UIViewController {
         }
     }
     
-    @IBOutlet weak var historyDisplay: UILabel!
+    let debug = true
     
     var userIsInTheMiddleOfTypingANumber = false
-    
     var brain = CalculatorBrain()
     
     @IBAction func appendDigit(sender: UIButton) {
@@ -41,10 +41,6 @@ class ViewController: UIViewController {
     }
     
     @IBAction func enter() {
-        ////TODO
-        // move to model maybe?
-        updateHistoryDisplay(display.text!)
-        
         if let result = brain.pushOperand(displayValue) {
             displayValue = result
         }
@@ -56,6 +52,7 @@ class ViewController: UIViewController {
         }
         
         userIsInTheMiddleOfTypingANumber = false
+        historyDisplay.text = "History: " + brain.dumpStack()
     }
     
     @IBAction func operate(sender: UIButton) {
@@ -73,10 +70,7 @@ class ViewController: UIViewController {
                 displayValue = 0
             }
 
-            
-            ////TODO
-            // move to model maybe
-            updateHistoryDisplay(operation)
+            historyDisplay.text = "History: " + brain.dumpStack() + " ="
         }
     }
     
@@ -88,13 +82,11 @@ class ViewController: UIViewController {
             display.text = display.text! + "."
             userIsInTheMiddleOfTypingANumber = true
         }
-        
-        updateHistoryDisplay(".")
     }
     
     @IBAction func performCalculatorAction(sender: UIButton) {
         // Peform actions which affect the state of the calculator it's self
-        // These are nothing to do with actual calculations, e.g clearing displa
+        // These are nothing to do with actual calculations, e.g clearing display
         // reseting etc.
         let action = sender.currentTitle!
         
@@ -108,10 +100,6 @@ class ViewController: UIViewController {
     func pushToOperandStack(value: Double) {
         display.text = "\(value)"
         enter()
-    }
-    
-    func updateHistoryDisplay(item: String) {
-        historyDisplay.text = historyDisplay.text! + " \(item)"
     }
     
     func clearCalc() {

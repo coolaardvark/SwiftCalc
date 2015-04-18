@@ -29,7 +29,6 @@ class CalculatorBrain {
     }
     
     private var opStack = Array<Op>()
-    
     private var knownOperations = Dictionary<String, Op>()
     
     init() {
@@ -81,8 +80,8 @@ class CalculatorBrain {
     
     func evaluate() -> Double? {
         let (result, remainder) = evaluateRecursivley(opStack)
-        
         println("\(opStack) = \(result) with \(remainder) left over")
+        
         return result
     }
     
@@ -99,8 +98,24 @@ class CalculatorBrain {
         return evaluate()
     }
     
-    func clearStack () {
+    func clearStack() {
         // Very simple this! (at the moment anyway)
         opStack.removeAll(keepCapacity: true)
+    }
+    
+    func dumpStack() -> String {
+        // Returns a string representing the stack.
+        // Need to clean up the string dump I get by using the printable
+        // feature of the Op emun
+        
+        let stackDump = "\(opStack)"
+        // remove comma space and replace with just one space
+        var cleanedDump = stackDump.stringByReplacingOccurrencesOfString(", ", withString: " ")
+        // remove leading and trailing square brackets (phew swift is verbose!)
+        cleanedDump = cleanedDump.substringToIndex(cleanedDump.endIndex.predecessor())
+        cleanedDump =
+            cleanedDump.substringFromIndex(cleanedDump.startIndex.successor())
+    
+        return cleanedDump
     }
 }
