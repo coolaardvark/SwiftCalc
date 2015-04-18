@@ -63,7 +63,7 @@ class ViewController: UIViewController {
             enter()
         }
         if let operation = sender.currentTitle {
-            if let result = brain.perforOperation(operation) {
+            if let result = brain.performOperation(operation) {
                 displayValue = result
             }
             else {
@@ -110,41 +110,35 @@ class ViewController: UIViewController {
         enter()
     }
     
-    ////TODO
-    // These three functions need to be moved to and updated to work with the model
     func updateHistoryDisplay(item: String) {
         historyDisplay.text = historyDisplay.text! + " \(item)"
     }
     
     func clearCalc() {
         // Reset to launch state
+        brain.clearStack()
+        
         display.text = "0"
         historyDisplay.text = "History:"
-        //operandStack.removeAll(keepCapacity: true)
         userIsInTheMiddleOfTypingANumber = false
     }
     
     func clearLastDigit() {
-        // Doing a lot of work with display.text so cache it locally
-        // It can be a constant since the changes are all made to
-        // display.text, not the local copy.
-        /*
-        let localDisplayText = display.text!
-        
         // Only allow deletes if, I've entered this number (it's not
         // the result of calcuation)
-        if userIsInTheMiddleOfTypingANumber {
+        
+        if userIsInTheMiddleOfTypingANumber && display.text! != "0" {
             // If this is this the last digit, make it 0 instead of deleting it
-            if localDisplayText.lengthOfBytesUsingEncoding(NSUTF8StringEncoding) == 1 {
+            if display.text?.lengthOfBytesUsingEncoding(NSUTF8StringEncoding) == 1 {
                 display.text = "0"
+                
                 // To avoid problems with leading 0's we need to come out of
                 // entry mode now
                 userIsInTheMiddleOfTypingANumber = false
             }
             else {
-                // Delete last digit
-                display.text = localDisplayText.substringToIndex(localDisplayText.endIndex.predecessor())
+                display.text = display.text!.substringToIndex(display.text!.endIndex.predecessor())
             }
-        }*/
+        }
     }
 }

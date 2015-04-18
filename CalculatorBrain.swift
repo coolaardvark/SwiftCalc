@@ -91,11 +91,16 @@ class CalculatorBrain {
         return evaluate()
     }
     
-    func perforOperation(symbol: String) -> Double? {
+    func performOperation(symbol: String) -> Double? {
         if let operation = knownOperations[symbol] {
             opStack.append(operation)
         }
         
         return evaluate()
+    }
+    
+    func clearStack () {
+        // Very simple this! (at the moment anyway)
+        opStack.removeAll(keepCapacity: true)
     }
 }
