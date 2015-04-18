@@ -34,16 +34,19 @@ class CalculatorBrain {
     
     init() {
         // 'teach' our brain about the oppertions it will be asked to perform
+        func learnOp(op :Op) {
+            knownOperations[op.description] = op
+        }
         
         // The characters below are unicode and where placed using the
         // the character selector, the - and + are *not* from the keyboard!
-        knownOperations["+"] = Op.BinaryOperation("+") { $0 + $1 }
-        knownOperations["−"] = Op.BinaryOperation("−") { $1 - $0 }
-        knownOperations["×"] = Op.BinaryOperation("×") { $0 * $1 }
-        knownOperations["÷"] = Op.BinaryOperation("÷") { $1 / $0 }
-        knownOperations["√"] = Op.UnarayOperation("√") { sqrt($0) }
-        knownOperations["cos"] = Op.UnarayOperation("cos") { cos($0) }
-        knownOperations["sin"] = Op.UnarayOperation("sin") { sin($0) }
+        learnOp(Op.BinaryOperation("+", { $0 + $1 }))
+        learnOp(Op.BinaryOperation("−", { $1 - $0 }))
+        learnOp(Op.BinaryOperation("×", { $0 * $1 }))
+        learnOp(Op.BinaryOperation("÷", { $1 / $0 }))
+        learnOp(Op.UnarayOperation("√", { sqrt($0) }))
+        learnOp(Op.UnarayOperation("cos", { cos($0) }))
+        learnOp(Op.UnarayOperation("sin", { sin($0) }))
     }
     
     private func evaluateRecursivley(ops: [Op]) -> (result: Double?, remainingOps: [Op]) {
