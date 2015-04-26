@@ -84,6 +84,28 @@ class ViewController: UIViewController {
         }
     }
     
+    
+    @IBAction func signChange(sender: UIButton) {
+        // This button gets it's own function since it acts differently
+        // depending on if the user is entering a number or not
+        if userIsInTheMiddleOfTypingANumber {
+            // Toggle the sign of the display
+            if display.text!.hasPrefix("−") {
+                display.text = display.text!.substringFromIndex(display.text!.startIndex.successor())
+            }
+            else {
+                display.text = "−\(display.text!)"
+            }
+        }
+        else {
+            // Opperate on the top of the stack, creating a new entry
+            // This seems odd to me, but is how RPN calculators seem work
+            
+            // I pass in the sender button so I can do this!
+            operate(sender)
+        }
+    }
+    
     @IBAction func performCalculatorAction(sender: UIButton) {
         // Peform actions which affect the state of the calculator it's self
         // These are nothing to do with actual calculations, e.g clearing display
@@ -97,8 +119,15 @@ class ViewController: UIViewController {
         }
     }
     
-    func pushToOperandStack(value: Double) {
-        display.text = "\(value)"
+    @IBAction func enterConstant(sender: UIButton) {
+        // Push named constant to stack and display it
+        // Since the constant has been pushed we need to finish off out
+        // of entry mode
+        let symbol = sender.currentTitle!
+        if let value = brain.getConstant(symbol) {
+            display.text = "\(value)"
+        }
+        
         enter()
     }
     

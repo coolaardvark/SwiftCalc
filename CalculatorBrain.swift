@@ -28,6 +28,7 @@ class CalculatorBrain {
         }
     }
     
+    private var constants = Dictionary<String,Double>()
     private var opStack = Array<Op>()
     private var knownOperations = Dictionary<String, Op>()
     
@@ -46,6 +47,12 @@ class CalculatorBrain {
         learnOp(Op.UnarayOperation("√", { sqrt($0) }))
         learnOp(Op.UnarayOperation("cos", { cos($0) }))
         learnOp(Op.UnarayOperation("sin", { sin($0) }))
+        learnOp(Op.UnarayOperation("+/−", {
+            signbit($0) == 0 ? copysign($0, -1) : copysign($0, 1)
+        }))
+        
+        // Set up constants
+        constants["∏"] = M_PI
     }
     
     private func evaluateRecursivley(ops: [Op]) -> (result: Double?, remainingOps: [Op]) {
@@ -87,7 +94,12 @@ class CalculatorBrain {
     
     func pushOperand(operand: Double) -> Double? {
         opStack.append(Op.Operand(operand))
+        
         return evaluate()
+    }
+    
+    func getConstant(symbol: String) -> Double? {
+        return constants[symbol]
     }
     
     func performOperation(symbol: String) -> Double? {
@@ -111,7 +123,7 @@ class CalculatorBrain {
         let stackDump = "\(opStack)"
         // remove comma space and replace with just one space
         var cleanedDump = stackDump.stringByReplacingOccurrencesOfString(", ", withString: " ")
-        // remove leading and trailing square brackets (phew swift is verbose!)
+        // remove leading and trailing square brackets (phew, swift is verbose!)
         cleanedDump = cleanedDump.substringToIndex(cleanedDump.endIndex.predecessor())
         cleanedDump =
             cleanedDump.substringFromIndex(cleanedDump.startIndex.successor())
