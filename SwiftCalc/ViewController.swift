@@ -13,12 +13,19 @@ class ViewController: UIViewController {
     @IBOutlet weak var display: UILabel!
     @IBOutlet weak var historyDisplay: UILabel!
     
-    var displayValue: Double {
+    var displayValue: Double? {
         get {
             return NSNumberFormatter().numberFromString(display.text!)!.doubleValue
         }
         set {
-            display.text = "\(newValue)";
+            if newValue != nil {
+                display.text = "\(newValue!)";
+            }
+            else {
+                // Use a space to prevent the display from colapsing down to
+                // it's minium size
+                display.text = " "
+            }
             userIsInTheMiddleOfTypingANumber = false
         }
     }
@@ -41,17 +48,9 @@ class ViewController: UIViewController {
     }
     
     @IBAction func enter() {
-        if let result = brain.pushOperand(displayValue) {
-            displayValue = result
-        }
-        else {
-            ////TODO
-            // This is an error condtion, we need to make displayValue an
-            // optional so I can handle this error correctly
-            displayValue = 0
-        }
-        
+        displayValue = brain.pushOperand(displayValue!)
         userIsInTheMiddleOfTypingANumber = false
+        
         historyDisplay.text = "History: " + brain.dumpStack()
     }
     
@@ -60,15 +59,7 @@ class ViewController: UIViewController {
             enter()
         }
         if let operation = sender.currentTitle {
-            if let result = brain.performOperation(operation) {
-                displayValue = result
-            }
-            else {
-                ////TODO
-                // This is an error condtion, we need to make displayValue an
-                // optional so I can handle this error correctly
-                displayValue = 0
-            }
+            displayValue = brain.performOperation(operation)
 
             historyDisplay.text = "History: " + brain.dumpStack() + " ="
         }
