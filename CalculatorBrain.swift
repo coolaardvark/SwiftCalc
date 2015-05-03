@@ -32,6 +32,12 @@ class CalculatorBrain {
     private var opStack = Array<Op>()
     private var knownOperations = Dictionary<String, Op>()
     
+    var description: String {
+        get {
+            return describeStack();
+        }
+    }
+    
     init() {
         // 'teach' our brain about the oppertions it will be asked to perform
         func learnOp(op :Op) {
@@ -85,9 +91,60 @@ class CalculatorBrain {
         return (nil, ops)
     }
     
+    private func describeTopOfStack(depth: Int, inout stack: [Op]) -> String {
+        var currentDescription = "" // Our return value if the stack is empty
+        var currentDepth = depth + 1
+        
+        if !stack.isEmpty {
+            let op = stack.removeLast()
+            
+            switch op {
+            case .Operand(let operand):
+                currentDescription += "\(operand)"
+            case .UnarayOperation(let uOperator, _):
+                // Unarays should look like this 'function_name(value)'
+                let operand = describeTopOfStack(depth, stack: &stack)
+                currentDescription = uOperator + operand
+            case .BinaryOperation(let bOperator, _):
+                // Binarys should look like this 'operand1 operator operand2'
+                let operand1 = describeTopOfStack(depth, stack: &stack)
+                let operand2 = describeTopOfStack(depth, stack: &stack)
+                
+                // Need to worry about the order of operands for subtract
+                // and multiplication operators
+                if bOperator == "−" || bOperator == "÷" {
+                    currentDescription += "\(operand2)" + bOperator + "\(operand1)"
+                }
+                else {
+                    currentDescription += "\(operand1)" + bOperator + "\(operand2)"
+                }
+            }
+        }
+        
+        return currentDescription
+    }
+    
+    private func describeStack() -> String {
+        var stackDescription = ""
+        // Make a copy of the stack, since we consume it
+        var workingStack = opStack
+        
+        do {
+            // The slighty odd looking order here is because we need the
+            // resulting string to read left to right
+            stackDescription = describeTopOfStack(0, stack: &workingStack) + stackDescription
+        
+            if workingStack.count > 0 {
+                stackDescription = ", " + stackDescription
+            }
+        } while workingStack.count > 0
+        
+        return stackDescription
+    }
+    
     func evaluate() -> Double? {
         let (result, remainder) = evaluateRecursivley(opStack)
-        println("\(opStack) = \(result) with \(remainder) left over")
+        //println("\(opStack) = \(result) with \(remainder) left over")
         
         return result
     }
@@ -113,21 +170,5 @@ class CalculatorBrain {
     func clearStack() {
         // Very simple this! (at the moment anyway)
         opStack.removeAll(keepCapacity: true)
-    }
-    
-    func dumpStack() -> String {
-        // Returns a string representing the stack.
-        // Need to clean up the string dump I get by using the printable
-        // feature of the Op emun
-        
-        let stackDump = "\(opStack)"
-        // remove comma space and replace with just one space
-        var cleanedDump = stackDump.stringByReplacingOccurrencesOfString(", ", withString: " ")
-        // remove leading and trailing square brackets (phew, swift is verbose!)
-        cleanedDump = cleanedDump.substringToIndex(cleanedDump.endIndex.predecessor())
-        cleanedDump =
-            cleanedDump.substringFromIndex(cleanedDump.startIndex.successor())
-    
-        return cleanedDump
     }
 }

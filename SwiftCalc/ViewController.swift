@@ -30,8 +30,6 @@ class ViewController: UIViewController {
         }
     }
     
-    let debug = true
-    
     var userIsInTheMiddleOfTypingANumber = false
     var brain = CalculatorBrain()
     
@@ -51,7 +49,7 @@ class ViewController: UIViewController {
         displayValue = brain.pushOperand(displayValue!)
         userIsInTheMiddleOfTypingANumber = false
         
-        historyDisplay.text = "History: " + brain.dumpStack()
+        historyDisplay.text = "History: " + brain.description
     }
     
     @IBAction func operate(sender: UIButton) {
@@ -61,7 +59,7 @@ class ViewController: UIViewController {
         if let operation = sender.currentTitle {
             displayValue = brain.performOperation(operation)
 
-            historyDisplay.text = "History: " + brain.dumpStack() + " ="
+            historyDisplay.text = "History: " + brain.description
         }
     }
     
