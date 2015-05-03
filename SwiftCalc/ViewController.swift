@@ -59,7 +59,7 @@ class ViewController: UIViewController {
         if let operation = sender.currentTitle {
             displayValue = brain.performOperation(operation)
 
-            historyDisplay.text = "History: " + brain.description
+            historyDisplay.text = "History: " + brain.description + "="
         }
     }
     
@@ -72,7 +72,6 @@ class ViewController: UIViewController {
             userIsInTheMiddleOfTypingANumber = true
         }
     }
-    
     
     @IBAction func signChange(sender: UIButton) {
         // This button gets it's own function since it acts differently
@@ -110,14 +109,14 @@ class ViewController: UIViewController {
     
     @IBAction func enterConstant(sender: UIButton) {
         // Push named constant to stack and display it
-        // Since the constant has been pushed we need to finish off out
-        // of entry mode
+        // Constant's require different handling from number, since I store
+        // them in the stack using there symbol, not their value
         let symbol = sender.currentTitle!
-        if let value = brain.getConstant(symbol) {
+        if let value = brain.pushConstant(symbol) {
             display.text = "\(value)"
+            userIsInTheMiddleOfTypingANumber = false
+            historyDisplay.text = "History: " + brain.description
         }
-        
-        enter()
     }
     
     func clearCalc() {
@@ -125,7 +124,7 @@ class ViewController: UIViewController {
         brain.clearStack()
         
         display.text = "0"
-        historyDisplay.text = "History:"
+        historyDisplay.text = "History: "
         userIsInTheMiddleOfTypingANumber = false
     }
     

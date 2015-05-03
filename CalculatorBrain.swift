@@ -13,6 +13,7 @@ class CalculatorBrain {
         case Operand(Double)
         case UnarayOperation(String, Double -> Double)
         case BinaryOperation(String, (Double, Double) -> Double)
+        case Constant(String)
         
         var description: String {
             get {
@@ -20,21 +21,23 @@ class CalculatorBrain {
                 case .Operand(let operand):
                     return "\(operand)"
                 case .UnarayOperation(let symbol, _):
-                    return "\(symbol)"
+                    return symbol
                 case .BinaryOperation(let symbol, _):
-                    return "\(symbol)"
+                    return symbol
+                case .Constant(let symbol):
+                    return symbol
                 }
             }
         }
     }
     
-    private var constants = Dictionary<String,Double>()
     private var opStack = Array<Op>()
     private var knownOperations = Dictionary<String, Op>()
+    private var knownConstants = Dictionary<String, Double>()
     
     var description: String {
         get {
-            return describeStack();
+            return describeStack()
         }
     }
     
@@ -43,6 +46,8 @@ class CalculatorBrain {
         func learnOp(op :Op) {
             knownOperations[op.description] = op
         }
+        
+        knownConstants["∏"] = M_PI
         
         // The characters below are unicode and where placed using the
         // the character selector, the - and + are *not* from the keyboard!
@@ -56,9 +61,9 @@ class CalculatorBrain {
         learnOp(Op.UnarayOperation("+/−", {
             signbit($0) == 0 ? copysign($0, -1) : copysign($0, 1)
         }))
-        
-        // Set up constants
-        constants["∏"] = M_PI
+        // I have to define constants here and in knownConstants dictionary
+        // this seems a bit...clunky, but it works
+        learnOp(Op.Constant("∏"))
     }
     
     private func evaluateRecursivley(ops: [Op]) -> (result: Double?, remainingOps: [Op]) {
@@ -85,6 +90,8 @@ class CalculatorBrain {
                         return (operation(operand1, operand2),op2Evaluation.remainingOps)
                     }
                 }
+            case .Constant(let symbol):
+                return (knownConstants[symbol], remainingOps)
             }
         }
         
@@ -124,6 +131,8 @@ class CalculatorBrain {
                 if currentDepth > 1 {
                     currentDescription = "(" + currentDescription + ")"
                 }
+            case .Constant(let symbol):
+                currentDescription += symbol
             }
         }
         
@@ -161,8 +170,9 @@ class CalculatorBrain {
         return evaluate()
     }
     
-    func getConstant(symbol: String) -> Double? {
-        return constants[symbol]
+    func pushConstant(symbol: String) -> Double? {
+        opStack.append(Op.Constant(symbol))
+        return knownConstants[symbol]
     }
     
     func performOperation(symbol: String) -> Double? {
