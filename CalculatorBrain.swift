@@ -103,12 +103,14 @@ class CalculatorBrain {
                 currentDescription += "\(operand)"
             case .UnarayOperation(let uOperator, _):
                 // Unarays should look like this 'function_name(value)'
-                let operand = describeTopOfStack(depth, stack: &stack)
-                currentDescription = uOperator + operand
+                let operand = describeTopOfStack(currentDepth, stack: &stack)
+                // No need to check for depth, all functions have there operands
+                // surounded by parentheies
+                currentDescription = uOperator + "(" + operand + ")"
             case .BinaryOperation(let bOperator, _):
                 // Binarys should look like this 'operand1 operator operand2'
-                let operand1 = describeTopOfStack(depth, stack: &stack)
-                let operand2 = describeTopOfStack(depth, stack: &stack)
+                let operand1 = describeTopOfStack(currentDepth, stack: &stack)
+                let operand2 = describeTopOfStack(currentDepth, stack: &stack)
                 
                 // Need to worry about the order of operands for subtract
                 // and multiplication operators
@@ -117,6 +119,10 @@ class CalculatorBrain {
                 }
                 else {
                     currentDescription += "\(operand1)" + bOperator + "\(operand2)"
+                }
+                // Add parentheies as needed
+                if currentDepth > 1 {
+                    currentDescription = "(" + currentDescription + ")"
                 }
             }
         }
