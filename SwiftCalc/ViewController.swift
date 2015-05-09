@@ -19,7 +19,13 @@ class ViewController: UIViewController {
         }
         set {
             if newValue != nil {
-                display.text = "\(newValue!)";
+                // trim trailing .0 we get from direct converstion from double to string
+                var textValue = "\(newValue!)"
+                if var uselessSufix = textValue.rangeOfString(".0") {
+                    textValue.removeRange(uselessSufix)
+                }
+                
+                display.text = textValue
             }
             else {
                 // Use a space to prevent the display from colapsing down to
@@ -56,10 +62,10 @@ class ViewController: UIViewController {
         if userIsInTheMiddleOfTypingANumber {
             enter()
         }
+        
         if let operation = sender.currentTitle {
             displayValue = brain.performOperation(operation)
-
-            historyDisplay.text = "History: " + brain.description + "="
+            historyDisplay.text = "History: " + brain.description + " ="
         }
     }
     

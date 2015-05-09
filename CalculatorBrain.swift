@@ -14,6 +14,7 @@ class CalculatorBrain {
         case UnarayOperation(String, Double -> Double)
         case BinaryOperation(String, (Double, Double) -> Double)
         case Constant(String)
+        case Variable(String)
         
         var description: String {
             get {
@@ -26,6 +27,8 @@ class CalculatorBrain {
                     return symbol
                 case .Constant(let symbol):
                     return symbol
+                case .Variable(let name):
+                    return name
                 }
             }
         }
@@ -41,12 +44,18 @@ class CalculatorBrain {
         }
     }
     
+    var variableNames = Dictionary<String,Double>()
+    
+    var debug = false
+    
     init() {
         // 'teach' our brain about the oppertions it will be asked to perform
         func learnOp(op :Op) {
             knownOperations[op.description] = op
         }
         
+        // I have to define constants here in knownConstants dictionary
+        // this seems a bit...clunky, but it works
         knownConstants["∏"] = M_PI
         
         // The characters below are unicode and where placed using the
@@ -61,8 +70,6 @@ class CalculatorBrain {
         learnOp(Op.UnarayOperation("+/−", {
             signbit($0) == 0 ? copysign($0, -1) : copysign($0, 1)
         }))
-        // I have to define constants here and in knownConstants dictionary
-        // this seems a bit...clunky, but it works
         learnOp(Op.Constant("∏"))
     }
     
@@ -92,6 +99,8 @@ class CalculatorBrain {
                 }
             case .Constant(let symbol):
                 return (knownConstants[symbol], remainingOps)
+            case .Variable(let name):
+                return (variableNames[name], remainingOps)
             }
         }
         
@@ -107,7 +116,12 @@ class CalculatorBrain {
             
             switch op {
             case .Operand(let operand):
-                currentDescription += "\(operand)"
+                var textValue = "\(operand)"
+                // Remove trailing .0 if present
+                if var uselessSufix = textValue.rangeOfString(".0") {
+                    textValue.removeRange(uselessSufix)
+                }
+                currentDescription += textValue
             case .UnarayOperation(let uOperator, _):
                 // Unarays should look like this 'function_name(value)'
                 let operand = describeTopOfStack(currentDepth, stack: &stack)
@@ -133,6 +147,8 @@ class CalculatorBrain {
                 }
             case .Constant(let symbol):
                 currentDescription += symbol
+            case .Variable(let name):
+                currentDescription += name
             }
         }
         
@@ -159,13 +175,22 @@ class CalculatorBrain {
     
     func evaluate() -> Double? {
         let (result, remainder) = evaluateRecursivley(opStack)
-        //println("\(opStack) = \(result) with \(remainder) left over")
+        
+        if debug {
+            println("\(opStack) = \(result) with \(remainder) left over")
+        }
         
         return result
     }
     
     func pushOperand(operand: Double) -> Double? {
         opStack.append(Op.Operand(operand))
+        
+        return evaluate()
+    }
+    
+    func pushOperand(operand: String) -> Double? {
+        opStack.append(Op.Variable(operand))
         
         return evaluate()
     }
